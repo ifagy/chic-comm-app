@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { NOTCHES, TOTAL_NOTCHES, STEP_ANGLE, PHYSICS_CONFIG } from '../config/telegraphNotches';
 import { useTelegraphAudio } from './useTelegraphAudio';
+import { useHaptics } from './useHaptics';
 
 export function useTelegraphWheel() {
   const currentAngle = ref(0);
@@ -11,6 +12,7 @@ export function useTelegraphWheel() {
   const isBellRinging = ref(false);
 
   const { playClickSound, playBellSound, initAudio } = useTelegraphAudio();
+  const { triggerNotchHaptic, triggerBellHaptic } = useHaptics();
 
   let onAngleChangedCallback = null;
   let onBellCallback = null;
@@ -18,7 +20,7 @@ export function useTelegraphWheel() {
   let velocity = 0;
   let dragStartPointerAngle = 0;
   let dragStartWheelAngle = 0;
-  let lastPlayedNotchIndex = 0; // Sesin tekrarlamaması için son çalınan çentik
+  let lastPlayedNotchIndex = 0;
 
   const activeNotchIndex = computed(() => {
     let idx = Math.round(currentAngle.value / STEP_ANGLE) % TOTAL_NOTCHES;
@@ -32,11 +34,12 @@ export function useTelegraphWheel() {
     return deg < 0 ? deg + 360 : deg;
   });
 
-  // Çentik değiştiğinde tık sesi çal
-  const checkAndPlayNotchSound = () => {
+  // Çentik geçişinde hem ses hem titreşim
+  const checkAndPlayNotchFeedback = () => {
     const currentNotch = activeNotchIndex.value;
     if (currentNotch !== lastPlayedNotchIndex) {
       playClickSound();
+      triggerNotchHaptic();
       lastPlayedNotchIndex = currentNotch;
     }
   };
@@ -50,7 +53,7 @@ export function useTelegraphWheel() {
   };
 
   const startDrag = (clientX, clientY, canvasRect) => {
-    initAudio(); // Kullanıcı ilk dokunduğunda sesi aktif et
+    initAudio();
     isDragging.value = true;
     velocity = 0;
     dragStartPointerAngle = getPointerAngle(clientX, clientY, canvasRect);
@@ -73,7 +76,7 @@ export function useTelegraphWheel() {
     currentAngle.value = dragStartWheelAngle + deltaAngle;
     targetAngle.value = currentAngle.value;
 
-    checkAndPlayNotchSound(); // Sürüklerken çentik geçişlerinde tıkla
+    checkAndPlayNotchFeedback();
 
     if (onAngleChangedCallback) {
       onAngleChangedCallback(currentAngle.value, true);
@@ -101,18 +104,18 @@ export function useTelegraphWheel() {
       velocity *= PHYSICS_CONFIG.DAMPING;
       currentAngle.value += velocity;
 
-      // Yaylanırken çentiğe oturma anında tık sesi çal
       if (Math.abs(velocity) > 0.005) {
-        checkAndPlayNotchSound();
+        checkAndPlayNotchFeedback();
       }
     }
   };
 
-  // Lokal Zil Tetikleme
+  // Local Bell Trigger
   const ringBell = () => {
     initAudio();
     isBellRinging.value = true;
-    playBellSound(); // Zil sesini çal
+    playBellSound();
+    triggerBellHaptic();
     console.log(`🔔 [LOCAL BELL]: "${currentStatus.value.label || 'MARKER'}" | Notch: #${activeNotchIndex.value}`);
     if (onBellCallback) onBellCallback();
     setTimeout(() => { isBellRinging.value = false; }, 300);
@@ -125,17 +128,18 @@ export function useTelegraphWheel() {
       velocity = 0;
       currentAngle.value = angle;
       targetAngle.value = angle;
-      checkAndPlayNotchSound(); // Karşı taraf çevirirken de bizde tıklar çalar
+      checkAndPlayNotchFeedback();
     } else {
       targetAngle.value = angle;
     }
   };
 
-  // Karşı taraftan zil sinyali geldiğinde
+  // Remote Bell Trigger
   const triggerRemoteBell = () => {
     initAudio();
     isBellRinging.value = true;
-    playBellSound(); // Zil sesini çal
+    playBellSound();
+    triggerBellHaptic();
     console.log(`🔔✨ [REMOTE BELL RECEIVED]: Partner rang the attention bell!`);
     setTimeout(() => { isBellRinging.value = false; }, 400);
   };

@@ -130,20 +130,28 @@ const revertRoomChange = () => {
   margin: 0;
   padding: 0;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
-body {
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: fixed; /* Mobilde rubber-band / pull-to-refresh kaymasını kilitler */
   background-color: #edeef0;
   color: #111827;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  overflow: hidden;
 }
 .app-layout {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
   gap: 1.2rem;
+  touch-action: none; /* Sayfa kaydırmayı engelle */
 }
 
 /* MINIMAL ROOM BAR */
