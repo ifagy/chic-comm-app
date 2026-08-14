@@ -10,8 +10,7 @@
           {{ socketEngine.tempMessage.value || (socketEngine.peerCount.value > 1 ? '2 Peers' : '1 Peer') }}
         </span>
       </div>
-
-      <!-- INLINE EDITABLE ROOM CODE -->
+    
       <div class="code-editor-wrap">
         <input 
           ref="codeinputRef"
@@ -19,7 +18,6 @@
           class="inline-code-input"
           spellcheck="false"
           maxlength="8"
-          placeholder="8-CHAR"
           @focus="onFocus"
           @blur="onBlur"
           @keydown.enter="submitRoomChange"
@@ -34,14 +32,23 @@
           ✓
         </button>
       </div>
-
-      <!-- MINIMAL LEAVE / NEW ROOM ICON BUTTON -->
+    
+      <!-- SHARE LINK BUTTON -->
+      <button 
+        class="icon-btn" 
+        @click="socketEngine.copyShareLink" 
+        title="Copy invitation link"
+      >
+        <span class="btn-icon">🔗</span>
+      </button>
+    
+      <!-- REFRESH / NEW ROOM BUTTON -->
       <button 
         class="icon-btn" 
         @click="socketEngine.leaveAndCreateNewRoom" 
         title="Leave and generate new room"
       >
-        <span class="refresh-icon">↺</span>
+        <span class="btn-icon">↺</span>
       </button>
     </header>
 

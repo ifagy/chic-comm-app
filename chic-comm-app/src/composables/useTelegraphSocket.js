@@ -1,9 +1,8 @@
 // src/composables/useTelegraphSocket.js
 import { ref, onMounted, onUnmounted } from 'vue';
 
-// 8 Karakterli Alfanumerik Kod Üretici (Örn: "K9X2M7P4")
 function generateRandomRoomCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Okuması kolay karakterler
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
   for (let i = 0; i < 8; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -11,13 +10,36 @@ function generateRandomRoomCode() {
   return code;
 }
 
+// URL'den (?room=...) parametresini okur
+function getInitialRoomCode() {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const roomParam = params.get('room');
+    if (roomParam && roomParam.trim().length > 0) {
+      return roomParam.trim().toUpperCase();
+    }
+  }
+  return generateRandomRoomCode();
+}
+
 export function useTelegraphSocket(wheelEngine) {
   const isConnected = ref(false);
-  const currentRoomCode = ref(generateRandomRoomCode());
+  const currentRoomCode = ref(getInitialRoomCode());
   const peerCount = ref(1);
   const tempMessage = ref('');
   let messageTimer = null;
   let socket = null;
+
+  // Ortam değişkeninden (Production vs Localhost) WSS adresini al
+  const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8080';
+
+  const updateUrlWithRoom = (code) => {
+    if (typeof window !== 'undefined' && window.history.pushState) {
+      const url = new URL(window.location);
+      url.searchParams.set('room', code);
+      window.history.pushState({}, '', url);
+    }
+  };
 
   const showNotification = (msg) => {
     if (!msg) return;
@@ -32,6 +54,7 @@ export function useTelegraphSocket(wheelEngine) {
     if (!code) return;
     const cleanCode = code.trim().toUpperCase();
     currentRoomCode.value = cleanCode;
+    updateUrlWithRoom(cleanCode);
 
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({
@@ -47,8 +70,14 @@ export function useTelegraphSocket(wheelEngine) {
     showNotification('New room generated');
   };
 
+  const copyShareLink = () => {
+    const shareUrl = `${window.location.origin}?room=${currentRoomCode.value}`;
+    navigator.clipboard.writeText(shareUrl);
+    showNotification('Link copied to clipboard! 📋');
+  };
+
   const connect = () => {
-    socket = new WebSocket('ws://localhost:8080');
+    socket = new WebSocket(WS_URL);
 
     socket.onopen = () => {
       isConnected.value = true;
@@ -59,7 +88,7 @@ export function useTelegraphSocket(wheelEngine) {
       isConnected.value = false;
       peerCount.value = 1;
       showNotification('Disconnected');
-      setTimeout(connect, 2000);
+      setTimeout(connect, 2500);
     };
 
     socket.onmessage = (event) => {
@@ -85,7 +114,7 @@ export function useTelegraphSocket(wheelEngine) {
           wheelEngine.triggerRemoteBell();
         }
       } catch (err) {
-        console.error('Failed to parse socket payload:', err);
+        console.error('Socket message parse error:', err);
       }
     };
   };
@@ -125,6 +154,7 @@ export function useTelegraphSocket(wheelEngine) {
     tempMessage,
     joinRoom,
     leaveAndCreateNewRoom,
+    copyShareLink,
     sendAngle,
     sendBell
   };
