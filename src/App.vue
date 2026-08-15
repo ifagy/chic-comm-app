@@ -1,5 +1,6 @@
 <!-- src/App.vue -->
 <template>
+  <Analytics />
   <main class="app-layout">
     
     <!-- MINIMAL & STRICT SESSION BAR -->
@@ -81,10 +82,12 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+import { Analytics } from '@vercel/analytics/vue';
 import StatusDisplay from './components/StatusDisplay.vue';
 import TelegraphWheel from './components/TelegraphWheel.vue';
 import { useTelegraphWheel } from './composables/useTelegraphWheel';
 import { useTelegraphSocket } from './composables/useTelegraphSocket';
+
 
 const wheelEngine = useTelegraphWheel();
 const socketEngine = useTelegraphSocket(wheelEngine);
