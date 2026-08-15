@@ -1,5 +1,6 @@
 // server.js
 import { WebSocketServer, WebSocket } from 'ws';
+import http from 'http';
 
 const PORT = process.env.PORT || 8080;
 
