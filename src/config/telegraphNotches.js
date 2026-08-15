@@ -28,6 +28,6 @@ export const TOTAL_NOTCHES = NOTCHES.length; // 12
 export const STEP_ANGLE = (2 * Math.PI) / TOTAL_NOTCHES; // 30 Derece
 
 export const PHYSICS_CONFIG = {
-  SPRING_STIFFNESS: 0.09,
-  DAMPING: 0.72
+  SPRING_STIFFNESS: 0.2,
+  DAMPING: 0.8
 };
