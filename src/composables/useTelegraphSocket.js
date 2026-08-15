@@ -1,5 +1,6 @@
 // src/composables/useTelegraphSocket.js
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useTelegraphNotifications } from './useTelegraphNotifications';
 
 function generateRandomRoomCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
