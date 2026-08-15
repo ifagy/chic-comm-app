@@ -7,7 +7,7 @@
       <div class="peer-badge" :class="{ 'online': socketEngine.peerCount.value > 1 }">
         <span class="led"></span>
         <span class="peer-text">
-          {{ socketEngine.tempMessage.value || (socketEngine.peerCount.value > 1 ? '2 Peers' : '1 Peer') }}
+          {{ socketEngine.tempMessage.value || `${socketEngine.peerCount.value} ${socketEngine.peerCount.value === 1 ? 'In Room' : 'In Room'}` }}
         </span>
       </div>
     
