@@ -116,6 +116,15 @@ const onBlur = () => {
 // Enter ile odaya geç
 const submitRoomChange = () => {
   const target = editCode.value.trim().toUpperCase();
+
+  if (target.length !== 8) {
+    // 8 karakter değilse eski koda geri döndür
+    editCode.value = socketEngine.currentRoomCode.value;
+    isEditing.value = false;
+    codeinputRef.value?.blur();
+    return;
+  }
+
   if (target && target !== socketEngine.currentRoomCode.value) {
     socketEngine.joinRoom(target);
   }

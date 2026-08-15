@@ -83,11 +83,7 @@ export function useTelegraphSocket(wheelEngine) {
     if (!code) return;
     const cleanCode = code.trim().toUpperCase();
 
-    if (cleanCode.length !== 8) {
-      showNotification('Room code must be 8 characters');
-      return;
-    }
-
+    
     currentRoomCode.value = cleanCode;
     updateUrlAndStorage(cleanCode); // Hafızaya ve URL'e kaydet
 
