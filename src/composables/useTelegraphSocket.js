@@ -85,6 +85,8 @@ export function useTelegraphSocket(wheelEngine) {
     currentRoomCode.value = cleanCode;
     updateUrlAndStorage(cleanCode); // Hafızaya ve URL'e kaydet
 
+    wheelEngine.triggerJoinHaptic?.();
+
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({
         type: 'JOIN_ROOM',
@@ -95,6 +97,9 @@ export function useTelegraphSocket(wheelEngine) {
 
   const leaveAndCreateNewRoom = () => {
     const newCode = generateRandomRoomCode();
+
+    wheelEngine.triggerRoomCreateHaptic?.();
+
     joinRoom(newCode);
     showNotification('New room generated');
   };
@@ -146,12 +151,25 @@ export function useTelegraphSocket(wheelEngine) {
         if (data.type === 'SYNC_INIT_STATE') {
           peerCount.value = data.peerCount;
           wheelEngine.applyRemoteAngle(data.angle, false);
-          if (data.message) showNotification(data.message);
+          if (data.message) {
+            showNotification(data.message);
+            if (data.peerCount > 1) {
+              wheelEngine.triggerJoinHaptic?.();
+            }
+          }
+          
         }
 
         if (data.type === 'PEER_STATUS') {
           peerCount.value = data.peerCount;
           if (data.message) showNotification(data.message);
+
+          if (data.peerCount > previousCount) {
+            wheelEngine.triggerJoinHaptic?.(); 
+          } else if (data.peerCount < previousCount) {
+            wheelEngine.triggerLeaveHaptic?.();
+          }
+
         }
 
         if (data.type === 'WHEEL_MOVE') {

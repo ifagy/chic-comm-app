@@ -24,8 +24,38 @@ export function useHaptics() {
     }
   };
 
+  // Biri girdiğinde veya odaya katıldığında: Çift hafif tık (Bağlantı hissi)
+  const triggerJoinHaptic = () => {
+    if (isVibrationSupported) {
+      try {
+        navigator.vibrate([30, 50, 40]);
+      } catch (e) {}
+    }
+  };
+
+  // Biri çıktığında: Tek tok/düşük tık (Ayrılma hissi)
+  const triggerLeaveHaptic = () => {
+    if (isVibrationSupported) {
+      try {
+        navigator.vibrate([60]);
+      } catch (e) {}
+    }
+  };
+
+  // Yeni oda oluşturulduğunda: Hızlı üçlü tık (Yenilenme hissi)
+  const triggerRoomCreateHaptic = () => {
+    if (isVibrationSupported) {
+      try {
+        navigator.vibrate([20, 30, 20, 30, 40]);
+      } catch (e) {}
+    }
+  };
+
   return {
     triggerNotchHaptic,
-    triggerBellHaptic
+    triggerBellHaptic,
+    triggerJoinHaptic,
+    triggerLeaveHaptic,
+    triggerRoomCreateHaptic
   };
 }

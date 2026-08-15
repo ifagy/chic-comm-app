@@ -12,7 +12,7 @@ export function useTelegraphWheel() {
   const isBellRinging = ref(false);
 
   const { playClickSound, playBellSound, initAudio } = useTelegraphAudio();
-  const { triggerNotchHaptic, triggerBellHaptic } = useHaptics();
+  const { triggerNotchHaptic, triggerBellHaptic, triggerJoinHaptic, triggerLeaveHaptic, triggerRoomCreateHaptic  } = useHaptics();
 
   let onAngleChangedCallback = null;
   let onBellCallback = null;
@@ -173,6 +173,9 @@ export function useTelegraphWheel() {
     ringBell,
     applyRemoteAngle,
     triggerRemoteBell,
-    setSocketCallbacks
+    setSocketCallbacks,
+    triggerJoinHaptic,
+    triggerLeaveHaptic,
+    triggerRoomCreateHaptic
   };
 }
