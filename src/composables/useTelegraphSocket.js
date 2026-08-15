@@ -165,6 +165,7 @@ export function useTelegraphSocket(wheelEngine) {
           if (data.message) showNotification(data.message);
 
           if (data.peerCount > previousCount) {
+            const previousCount = peerCount.value;
             wheelEngine.triggerJoinHaptic?.(); 
           } else if (data.peerCount < previousCount) {
             wheelEngine.triggerLeaveHaptic?.();
