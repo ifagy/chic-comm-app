@@ -29,6 +29,9 @@ export function useTelegraphSocket(wheelEngine) {
   const tempMessage = ref('');
   let messageTimer = null;
   let socket = null;
+  const statusMessage = ref('Connecting to server...'); 
+  let pingInterval = null;
+  let connectionAttempts = 0;
 
   // Ortam değişkeninden (Production vs Localhost) WSS adresini al
   const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8080';
@@ -78,10 +81,23 @@ export function useTelegraphSocket(wheelEngine) {
 
   const connect = () => {
     socket = new WebSocket(WS_URL);
+    connectionAttempts++;
+
+    if (connectionAttempts > 1) {
+      statusMessage.value = 'Waking up server (can take 30s)...';
+      showNotification('Server is cold-starting, please wait.');
+    }
 
     socket.onopen = () => {
       isConnected.value = true;
+      connectionAttempts = 0;
       joinRoom(currentRoomCode.value);
+
+      pingInterval = setInterval(() => {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({ type: 'PING' }));
+        }
+      }, 30000);
     };
 
     socket.onclose = () => {
@@ -94,6 +110,8 @@ export function useTelegraphSocket(wheelEngine) {
     socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
+
+        if (data.type === 'PONG') return;
 
         if (data.type === 'SYNC_INIT_STATE') {
           peerCount.value = data.peerCount;

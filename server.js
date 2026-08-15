@@ -2,11 +2,22 @@
 import { WebSocketServer, WebSocket } from 'ws';
 
 const PORT = process.env.PORT || 8080;
-const wss = new WebSocketServer({ port: Number(PORT) });
+
+const server = http.createServer((req, res) => {
+  if (req.url === '/ping') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Telegraph Server is Awake!');
+  } else {
+    res.writeHead(404);
+    res.end();
+  }
+});
+
+const wss = new WebSocketServer({ server });
 
 const rooms = new Map();
 
-console.log(`📡 [Telegraph Server] WebSocket server listening on port ${PORT}...`);
+console.log(`📡 [Telegraph Server]Server listening on port ${PORT}...`);
 
 function leaveRoom(ws) {
   const currentRoom = ws.roomCode;
@@ -36,6 +47,11 @@ wss.on('connection', (ws) => {
   ws.on('message', (rawData) => {
     try {
       const data = JSON.parse(rawData.toString());
+      
+      if (data.type === 'PING') {
+        ws.send(JSON.stringify({ type: 'PONG' }));
+        return;
+      }
 
       if (data.type === 'JOIN_ROOM') {
         const targetRoom = data.roomCode.trim().toUpperCase();
@@ -104,4 +120,8 @@ wss.on('connection', (ws) => {
   ws.on('close', () => {
     leaveRoom(ws);
   });
+});
+
+server.listen(PORT, () => {
+  console.log(`Server successfully started.`);
 });
