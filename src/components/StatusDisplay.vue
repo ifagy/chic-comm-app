@@ -1,3 +1,4 @@
+<!-- src/components/StatusDisplay.vue -->
 <template>
   <div class="status-card">
     <div class="subtitle">TELEGRAPH ORDER</div>
@@ -16,23 +17,29 @@ defineProps({
 
 <style scoped>
 .status-card {
-  background: #1c222c;
-  padding: 1rem 2.5rem;
-  border-radius: 30px;
-  border: 1px solid #2e3846;
+  background: #FFFFFF;
+  padding: 0.75rem 2rem;
+  border: 1px solid #E5E5E5;
+  border-radius: 6px; /* Disciplined */
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  min-width: 200px;
 }
+
 .subtitle {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: #8da2b5;
-}
-.status-label {
-  font-size: 1.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
   font-weight: 700;
-  color: #d4af37;
-  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #737373;
+}
+
+.status-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #171717;
+  margin-top: 2px;
+  line-height: 1.2;
 }
 </style>

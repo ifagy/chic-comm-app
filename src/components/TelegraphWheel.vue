@@ -15,7 +15,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { NOTCHES, TOTAL_NOTCHES, STEP_ANGLE } from '../config/telegraphNotches';
 
 const props = defineProps({
-  size: { type: Number, default: 460 },
+  size: { type: Number, default: 440 },
   currentAngle: { type: Number, required: true },
   wheelEngine: { type: Object, required: true }
 });
@@ -278,14 +278,23 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  
 }
+
 canvas {
   touch-action: none;
   cursor: grab;
   border-radius: 50%;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
-  background-color: #fff;
+  background-color: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  box-shadow: 0 4px 0 #E5E5E5;
+  max-width: 100%; 
+  height: auto;
+  aspect-ratio: 1 / 1; 
 }
+
+/* AŞAĞI BASTIRMA EFEKTİ KALDIRILDI */
 canvas:active {
   cursor: grabbing;
 }
