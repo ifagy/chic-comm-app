@@ -149,7 +149,10 @@ export function useTelegraphSocket(wheelEngine) {
   };
 
   const sendBell = (statusLabel) => {
-    requestPermission(); 
+    try {
+      requestPermission();
+    } catch (e) {}
+
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({
         type: 'BELL_RING',

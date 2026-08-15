@@ -117,8 +117,16 @@ export function useTelegraphWheel() {
     playBellSound();
     triggerBellHaptic();
     console.log(`🔔 [LOCAL BELL]: "${currentStatus.value.label || 'MARKER'}" | Notch: #${activeNotchIndex.value}`);
-    if (onBellCallback) onBellCallback();
-    setTimeout(() => { isBellRinging.value = false; }, 300);
+    
+    try {
+      if (onBellCallback) onBellCallback();
+    } catch (err) {
+      console.error('onBellCallback error:', err);
+    } finally {
+      setTimeout(() => {
+        isBellRinging.value = false;
+      }, 300);
+    }
   };
 
   const applyRemoteAngle = (angle, remoteIsDragging) => {
