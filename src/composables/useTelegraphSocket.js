@@ -161,8 +161,8 @@ export function useTelegraphSocket(wheelEngine) {
         }
 
         if (data.type === 'PEER_STATUS') {
-          peerCount.value = data.peerCount;
           const previousCount = peerCount.value;
+          peerCount.value = data.peerCount;
           if (data.message) showNotification(data.message);
 
           if (data.peerCount > previousCount) {
