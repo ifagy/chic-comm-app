@@ -100,7 +100,7 @@ watch(socketEngine.currentRoomCode, (newCode) => {
 
 wheelEngine.setSocketCallbacks(
   (angle, isDragging) => socketEngine.sendAngle(angle, isDragging),
-  () => socketEngine.sendBell()
+  () => socketEngine.sendBell(wheelEngine.currentStatus.value.label)
 );
 
 const onFocus = () => {

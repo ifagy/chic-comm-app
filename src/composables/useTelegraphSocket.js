@@ -112,6 +112,7 @@ export function useTelegraphSocket(wheelEngine) {
 
         if (data.type === 'BELL_RING') {
           wheelEngine.triggerRemoteBell();
+          showBellNotification(data.statusLabel);
         }
       } catch (err) {
         console.error('Socket message parse error:', err);
@@ -129,10 +130,12 @@ export function useTelegraphSocket(wheelEngine) {
     }
   };
 
-  const sendBell = () => {
+  const sendBell = (statusLabel) => {
+    requestPermission(); 
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({
         type: 'BELL_RING',
+        statusLabel: statusLabel || '',
         timestamp: Date.now()
       }));
     }

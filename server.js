@@ -88,7 +88,11 @@ wss.on('connection', (ws) => {
         const roomData = rooms.get(currentRoom);
         roomData.clients.forEach((client) => {
           if (client !== ws && client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(data));
+            client.send(JSON.stringify({
+              type: 'BELL_RING',
+              statusLabel: data.statusLabel || '',
+              timestamp: Date.now()
+            }));
           }
         });
       }
