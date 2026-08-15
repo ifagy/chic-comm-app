@@ -22,6 +22,10 @@ export function useTelegraphNotifications() {
     try {
       if (Notification.permission !== 'granted') return;
 
+      if (document.visibilityState === 'visible') {
+        return;
+      }
+
       const title = '🔔 Telegraph Bell!';
       const options = {
         body: statusLabel ? `Partner signaled: ${statusLabel}` : 'Partner rang the attention bell!',
