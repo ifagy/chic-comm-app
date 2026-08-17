@@ -59,7 +59,7 @@ wss.on('connection', (ws) => {
         leaveRoom(ws);
 
         if (!rooms.has(targetRoom)) {
-          rooms.set(targetRoom, { clients: new Set(), lastAngle: 0 });
+          rooms.set(targetRoom, { clients: new Set(), lastAngle: 0, pushSubscriptions: new Map(), notches: null });
         }
         
         const roomData = rooms.get(targetRoom);
@@ -70,6 +70,7 @@ wss.on('connection', (ws) => {
           type: 'SYNC_INIT_STATE',
           angle: roomData.lastAngle,
           peerCount: roomData.clients.size,
+          notches: roomData.notches, // Odaya ait metinleri bağlanan kişiye gönder
           roomCode: targetRoom,
           message: roomData.clients.size > 1 ? 'Connected with partner!' : null
         }));
@@ -111,8 +112,24 @@ wss.on('connection', (ws) => {
               timestamp: Date.now()
             }));
           }
+        });        
+      }
+
+      else if (data.type === 'UPDATE_NOTCHES') {
+        const currentRoom = ws.roomCode;
+        if (!currentRoom || !rooms.has(currentRoom)) return;
+
+        const roomData = rooms.get(currentRoom);
+        roomData.notches = data.notches; // Metinleri sunucu hafızasındaki odaya kaydet
+
+        // Odadaki diğer kişilere yeni metinleri canlı olarak gönder
+        roomData.clients.forEach((client) => {
+          if (client !== ws && client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type: 'SYNC_NOTCHES', notches: data.notches }));
+          }
         });
       }
+      
     } catch (err) {
       console.error('Error handling message:', err);
     }

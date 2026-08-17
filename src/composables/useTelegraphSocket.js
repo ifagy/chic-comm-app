@@ -1,6 +1,7 @@
 // src/composables/useTelegraphSocket.js
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useTelegraphNotifications } from './useTelegraphNotifications';
+import { NOTCHES as DEFAULT_NOTCHES } from '../config/telegraphNotches';
 
 const STORAGE_KEY = 'chic_telegraph_last_room';
 
@@ -40,7 +41,7 @@ function getInitialRoomCode() {
   return newCode;
 }
 
-export function useTelegraphSocket(wheelEngine) {
+export function useTelegraphSocket(wheelEngine, roomNotches) {
   const isConnected = ref(false);
   const currentRoomCode = ref(getInitialRoomCode());
   const peerCount = ref(1);
@@ -117,6 +118,12 @@ export function useTelegraphSocket(wheelEngine) {
     showNotification('Link copied! 📋');
   };
 
+  const sendNotches = (newNotches) => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: 'UPDATE_NOTCHES', notches: newNotches }));
+    }
+  };
+
   const connect = () => {
     socket = new WebSocket(WS_URL);
     connectionAttempts++;
@@ -157,6 +164,13 @@ export function useTelegraphSocket(wheelEngine) {
 
         if (data.type === 'SYNC_INIT_STATE') {
           peerCount.value = data.peerCount;
+
+          if (data.notches) {
+            roomNotches.value = data.notches;
+          } else {
+            roomNotches.value = JSON.parse(JSON.stringify(DEFAULT_NOTCHES));
+          }
+
           wheelEngine.applyRemoteAngle(data.angle, false);
           if (data.message) {
             showNotification(data.message);
@@ -165,6 +179,11 @@ export function useTelegraphSocket(wheelEngine) {
             }
           }
           
+        }
+
+        if (data.type === 'SYNC_NOTCHES') {
+          roomNotches.value = data.notches;
+          showNotification('Markers updated by partner');
         }
 
         if (data.type === 'PEER_STATUS') {
@@ -249,6 +268,7 @@ export function useTelegraphSocket(wheelEngine) {
     leaveAndCreateNewRoom,
     copyShareLink,
     sendAngle,
-    sendBell
+    sendBell,
+    sendNotches
   };
 }

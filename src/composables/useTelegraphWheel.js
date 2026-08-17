@@ -1,10 +1,10 @@
 // src/composables/useTelegraphWheel.js
 import { ref, computed } from 'vue';
-import { NOTCHES, TOTAL_NOTCHES, STEP_ANGLE, PHYSICS_CONFIG } from '../config/telegraphNotches';
+import { TOTAL_NOTCHES, STEP_ANGLE, PHYSICS_CONFIG } from '../config/telegraphNotches';
 import { useTelegraphAudio } from './useTelegraphAudio';
 import { useHaptics } from './useHaptics';
 
-export function useTelegraphWheel() {
+export function useTelegraphWheel(roomNotches) {
   const currentAngle = ref(0);
   const targetAngle = ref(0);
   const isDragging = ref(false);
@@ -27,7 +27,9 @@ export function useTelegraphWheel() {
     return idx < 0 ? idx + TOTAL_NOTCHES : idx;
   });
 
-  const currentStatus = computed(() => NOTCHES[activeNotchIndex.value]);
+  const currentStatus = computed(() => {
+    return roomNotches.value[activeNotchIndex.value] || {};
+  });
 
   const displayDegree = computed(() => {
     let deg = (currentAngle.value * (180 / Math.PI)) % 360;

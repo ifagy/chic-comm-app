@@ -12,12 +12,13 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { NOTCHES, TOTAL_NOTCHES, STEP_ANGLE } from '../config/telegraphNotches';
+import { TOTAL_NOTCHES, STEP_ANGLE } from '../config/telegraphNotches';
 
 const props = defineProps({
   size: { type: Number, default: 440 },
   currentAngle: { type: Number, required: true },
-  wheelEngine: { type: Object, required: true }
+  wheelEngine: { type: Object, required: true },
+  notches: { type: Array, required: true } 
 });
 
 const canvasRef = ref(null);
@@ -51,7 +52,7 @@ const handlePointerUp = () => {
 function getGroupSpans() {
   const groups = [];
   let current = null;
-  NOTCHES.forEach((item, index) => {
+  props.notches.forEach((item, index) => {
     if (item.group) {
       if (!current || current.name !== item.group) {
         current = { name: item.group, start: index, end: index };
@@ -108,8 +109,8 @@ const draw = () => {
   // 3. 12 Dilim Ayırıcı Çizgileri
   for (let i = 0; i < TOTAL_NOTCHES; i++) {
     const lineAngle = -Math.PI / 2 - STEP_ANGLE / 2 + i * STEP_ANGLE;
-    const prevItem = NOTCHES[(i - 1 + TOTAL_NOTCHES) % TOTAL_NOTCHES];
-    const currItem = NOTCHES[i];
+    const prevItem = props.notches[(i - 1 + TOTAL_NOTCHES) % TOTAL_NOTCHES];
+    const currItem = props.notches[i];
     const hasGroup = (prevItem && prevItem.group) && (currItem && currItem.group);
 
     ctx.save();
@@ -124,7 +125,7 @@ const draw = () => {
   }
 
   // 4. Metinler ve Tepe Kırmızı Vizör (Doğru Eksen Yerleşimi)
-  NOTCHES.forEach((item, i) => {
+  props.notches.forEach((item, i) => {
     const midAngle = -Math.PI / 2 + i * STEP_ANGLE;
 
     ctx.save();
@@ -149,11 +150,21 @@ const draw = () => {
       ctx.font = '900 19px "Arial Black", sans-serif';
       ctx.fillText(item.label, 0, 0);
     } 
-    else if (i === 6) { // COME HERE (İki satır, düz)
+    else if (i === 6) { // COME HERE (İki satır, düz) 
       ctx.rotate(-Math.PI / 2);
       ctx.font = '900 15px "Arial Black", sans-serif';
-      ctx.fillText("COME", 0, -8);
-      ctx.fillText("HERE", 0, 8);
+      
+      const label = item.label || '';
+      const words = label.trim().split(/\s+/);
+
+      if (words.length > 1) {
+        // İki veya daha fazla kelime varsa iki satıra böl
+        ctx.fillText(words[0], 0, -8);
+        ctx.fillText(words.slice(1).join(' '), 0, 8);
+      } else {
+        // Tek kelime ise tam ortalayarak bas
+        ctx.fillText(label, 0, 0);
+      }
     } 
     else if (i === 5 || i === 7) { // LATER & 5 MINS
       ctx.rotate(-Math.PI / 2);
@@ -279,6 +290,7 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   width: 100%;
+  margin-top: 1rem;
   
 }
 
